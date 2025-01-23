@@ -1,0 +1,9 @@
+psul_rmd_drupal_integration.settings:
+  title: Settings
+  route_name: psul_rmd_drupal_integration.settings
+  base_route: psul_rmd_drupal_integration.settings
+psul_rmd_drupal_integration.test:
+  title: Test
+  route_name: psul_rmd_drupal_integration.rmd_profile_test
+  base_route: psul_rmd_drupal_integration.settings
+

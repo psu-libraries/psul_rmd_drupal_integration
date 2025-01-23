@@ -1,7 +1,15 @@
 psul_rmd_drupal_integration.settings:
   path: '/admin/config/services/psul-rmd-settings'
   defaults:
-    _title: 'PSU Libraries RMD Settings'
+    _title: 'PSU Libraries: RMD Settings'
     _form: 'Drupal\psul_rmd_drupal_integration\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+
+psul_rmd_drupal_integration.rmd_profile_test:
+  path: '/admin/config/services/psul-rmd-settings/test'
+  defaults:
+    _title: 'PSU Libraries: RMD Profile Test'
+    _form: 'Drupal\psul_rmd_drupal_integration\Form\RmdProfileTestForm'
   requirements:
     _permission: 'administer site configuration'
