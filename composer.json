@@ -1,0 +1,13 @@
+{
+    "name": "psu-libraries/psul_rmd_drupal_integration",
+    "description": "PSU Libraries Research Metadata Database (RMD) Drupal Integration.",
+    "type": "drupal-module",
+    "authors": [
+        {
+            "name": "Mike Henninger",
+            "email": "msh6004@psu.edu"
+        }
+    ],
+    "require": {},
+    "license": "GPL-2.0-or-later"
+}
