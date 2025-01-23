@@ -10,7 +10,7 @@ use Drupal\psul_rmd_drupal_integration\RmdDataFetcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a PSU Libraries Research Metadata Database (RMD) Drupal Integration form.
+ * Provides a PSU Libraries RMD Drupal Integration form.
  */
 final class RmdProfileTestForm extends FormBase {
 
@@ -87,7 +87,8 @@ final class RmdProfileTestForm extends FormBase {
 
     if ($profile_data) {
       $form_state->set('profile_data', $profile_data);
-    } else {
+    }
+    else {
       $form_state->set('profile_data', 'Usernmame not found');
     }
 

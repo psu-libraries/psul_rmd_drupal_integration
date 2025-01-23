@@ -8,7 +8,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Configure PSU Libraries Research Metadata Database (RMD) Drupal Integration settings for this site.
+ * Configure PSU Libraries RMD Drupal Integration settings for this site.
  */
 final class SettingsForm extends ConfigFormBase {
 

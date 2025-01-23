@@ -6,4 +6,3 @@ psul_rmd_drupal_integration.test:
   title: Test
   route_name: psul_rmd_drupal_integration.rmd_profile_test
   base_route: psul_rmd_drupal_integration.settings
-

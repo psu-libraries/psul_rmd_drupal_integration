@@ -17,7 +17,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   use LoggerChannelTrait;
 
   /**
-   * @var array
+   * Data fetched from the remote metadata database.
    *
    * @var array
    */
@@ -51,15 +51,21 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
 
   /**
    * Fetch user data from the remote metadata database.
+   *
+   * @param string $username
+   *   Username to fetch data for.
+   * @param string $endpoint
+   *   The endpoint to fetch data from.
    */
-  protected function fetchUserData(string $username, string $endpoint = 'profile') {
+  protected function fetchUserData(string $username, string $endpoint = 'profile'): void {
     if (isset($this->data['data'])) {
-      return $this->data;
+      return;
     }
 
     $cache_id = "psul_rmd_data:{$endpoint}:{$username}";
     if ($cache = $this->cacheData->get($cache_id)) {
-      return $cache->data;
+      $this->data = $cache->data;
+      return;
     }
 
     $config = $this->configFactory->get('psul_rmd_drupal_integration.settings');
@@ -89,8 +95,5 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       $this->getLogger('psul_rmd_drupal_integration')->error($e->getMessage());
     }
   }
-
-
-
 
 }

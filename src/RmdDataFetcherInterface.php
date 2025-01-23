@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\psul_rmd_drupal_integration;
 
 /**
- * @todo Add interface description.
+ * Interface for fetching data from the remote metadata database.
  */
 interface RmdDataFetcherInterface {
 
@@ -17,7 +17,8 @@ interface RmdDataFetcherInterface {
    * @param string $attribute
    *   Return a specific attribute from the data.  Optional.
    *
-   * @return
+   * @return array
+   *   The data from the remote metadata database or empty array.
    */
   public function getProfileData(string $username, string $attribute = ''): array;
 
