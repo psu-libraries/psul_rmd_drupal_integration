@@ -1,2 +1,3 @@
 api_url: 'https://metadata.libraries.psu.edu/v1/'
 api_key: ''
+cache_ttl: 172800
