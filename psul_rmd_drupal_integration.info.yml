@@ -1,0 +1,5 @@
+name: 'PSU Libraries Research Metadata Database (RMD) Drupal Integration'
+type: module
+description: 'Drupal module to add PSU branding SDC.'
+package: 'PSU Libraries'
+core_version_requirement: ^10 || ^11
