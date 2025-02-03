@@ -22,4 +22,15 @@ interface RmdDataFetcherInterface {
    */
   public function getProfileData(string $username, string $attribute = ''): array;
 
+  /**
+   * Return publication data from RMD.
+   *
+   * @param string $username
+   *   The username to fetch data for.
+   *
+   * @return array
+   *   The publication data from the remote metadata database or empty array.
+   */
+  public function getProfilePublications(string $username): array;
+
 }
