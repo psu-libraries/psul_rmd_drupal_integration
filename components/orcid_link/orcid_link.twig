@@ -1,0 +1,47 @@
+{% set orcid_attributes = orcid_attributes ?: create_attribute() %}
+{% set orchid_link_attributes = orchid_link_attributes ?: create_attribute() %}
+{% set format = format ?: 'full' %}
+
+{%
+  set image_url = [
+    '/' ~    componentMetadata.path ~ '/',
+    'assets/ORCID-iD_icon',
+    not authenticated ? '_unauth' : '',
+    logo_color == 'mono' ? '_BW' : '',
+    logo_color == 'reversed' ? '_reversed' : '',
+    '_vector.svg',
+  ]|join('')
+%}
+
+{%
+  set classes = [
+    'orcid-link',
+    'orcid-link__' ~ format,
+  ]
+%}
+
+{%
+  set link_classes = [
+    'orcid-link--link',
+  ]
+%}
+<span {{ orcid_attributes.addClass(classes) }}>
+  <img src="{{ image_url }}" alt="ORCID iD" class="orcid_link--image"/>
+
+  <a href="https://orcid.org/{{ orcid }}"
+    {{ orchid_link_attributes.addClass(link_classes).setAttribute('aria-label', 'View ORCID record') }}>
+
+
+    <span class="orcid-link--text">
+      {% if format == 'inline' and inline_text %}
+        {{ inline_text }}
+      {% else %}
+        {% if format != 'compact' %}https://orcid.org/{% endif %}{{orcid }}
+      {% endif %}
+    </span>
+
+  </a>
+  {% if not authenticated %}
+    <span class="orcid-link--unauth-text">(unauthenticated)</span>
+  {% endif %}
+</span>
