@@ -22,10 +22,20 @@ function psul_rmd_drupal_integration_theme($existing, $type, $theme, $path) {
       'variables' => [
         'title' => '',
         'content' => '',
+        'type' => '',
       ],
       'template' => 'psul-rmd-item',
     ],
   ];
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for psul_rmd_item.
+ */
+function psul_rmd_drupal_integration_theme_suggestions_psul_rmd_item_alter(array &$suggestions, array $variables) {
+  if (!empty($variables['type'])) {
+    $suggestions[] = 'psul_rmd_item__' . $variables['type'];
+  }
 }
 
 /**
@@ -122,6 +132,7 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
     if (in_array('rmd_data_' . $key, $rmd_fields_displayed)) {
       $variables['content']['rmd_data_' . $key] = [
         '#theme' => 'psul_rmd_item',
+        '#type' => $key,
         '#title' => $label,
         '#content' => $rmd_data['attributes'][$key] ?? '',
       ];
