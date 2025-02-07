@@ -6,11 +6,26 @@ namespace Drupal\psul_rmd_drupal_integration\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\NodeType;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure PSU Libraries RMD Drupal Integration settings for this site.
  */
 final class SettingsForm extends ConfigFormBase {
+
+  protected $entityFieldManager;
+
+  public function __construct(EntityFieldManagerInterface $entity_field_manager) {
+    $this->entityFieldManager = $entity_field_manager;
+  }
+
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_field.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -53,7 +68,73 @@ final class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('Time in seconds to cache data from the API. Default is 172800 seconds (2 days).'),
     ];
 
+    $content_types = NodeType::loadMultiple();
+    $options = [];
+    foreach ($content_types as $content_type) {
+      $options[$content_type->id()] = $content_type->label();
+    }
+
+    $form['attached'] = [
+      '#type' => 'details',
+      '#description' => $this->t('Expose the RMD data as extra fields on a specific content type.'),
+      '#title' => $this->t('Content Settings'),
+      '#open' => TRUE,
+    ];
+
+    $default_content_type = $this->config('psul_rmd_drupal_integration.settings')->get('attached_content_type') ?? '';
+
+    $form['attached']['attached_content_type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Content Type'),
+      '#options' => $options,
+      '#empty_option' => $this->t('- Select a Content Type -'),
+      '#default_value' => $default_content_type,
+      '#required' => FALSE,
+      '#description' => $this->t('Specify the content type which should have RMD data added as extra fields.'),
+      '#ajax' => [
+        'callback' => '::updateUsernameFieldOptions',
+        'event' => 'change',
+        'wrapper' => 'attached-username-field-wrapper',
+      ],
+    ];
+
+    $form['attached']['attached_username_field'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Username Field'),
+      '#options' => $this->getUsernameFieldOptions($default_content_type),
+      '#default_value' => $this->config('psul_rmd_drupal_integration.settings')->get('attached_username_field') ?? '',
+      '#required' => FALSE,
+      '#description' => $this->t('Specify the field on the node where the username is stored.'),
+      '#prefix' => '<div id="attached-username-field-wrapper">',
+      '#suffix' => '</div>',
+      '#states' => [
+        'visible' => [
+          ':input[name="attached_content_type"]' => ['!value' => ''],
+        ],
+        'required' => [
+          ':input[name="attached_content_type"]' => ['!value' => ''],
+        ],
+      ],
+    ];
+
     return parent::buildForm($form, $form_state);
+  }
+
+  public function updateUsernameFieldOptions(array &$form, FormStateInterface $form_state) {
+    $content_type = $form_state->getValue('attached_content_type');
+    $form['attached']['attached_username_field']['#options'] = $this->getUsernameFieldOptions($content_type);
+    return $form['attached']['attached_username_field'];
+  }
+
+  protected function getUsernameFieldOptions($content_type) {
+    $options = [];
+    if ($content_type) {
+      $fields = $this->entityFieldManager->getFieldDefinitions('node', $content_type);
+      foreach ($fields as $field_name => $field_definition) {
+        $options[$field_name] = $field_definition->getLabel();
+      }
+    }
+    return $options;
   }
 
   /**
@@ -75,6 +156,8 @@ final class SettingsForm extends ConfigFormBase {
       ->set('api_url', $form_state->getValue('api_url'))
       ->set('api_key', $form_state->getValue('api_key'))
       ->set('cache_ttl', $form_state->getValue('cache_ttl'))
+      ->set('attached_content_type', $form_state->getValue('attached_content_type'))
+      ->set('attached_username_field', $form_state->getValue('attached_username_field'))
       ->save();
     parent::submitForm($form, $form_state);
   }
