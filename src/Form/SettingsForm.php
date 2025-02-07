@@ -6,8 +6,8 @@ namespace Drupal\psul_rmd_drupal_integration\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\NodeType;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -15,15 +15,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class SettingsForm extends ConfigFormBase {
 
-  protected $entityFieldManager;
+  /**
+   * {@inheritDoc}
+   */
+  public function __construct(
+    protected readonly EntityFieldManagerInterface $entityFieldManager,
+    protected readonly EntityTypeManagerInterface $entityTypeManager,
+  ) {}
 
-  public function __construct(EntityFieldManagerInterface $entity_field_manager) {
-    $this->entityFieldManager = $entity_field_manager;
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_field.manager')
+      $container->get('entity_field.manager'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -68,7 +74,7 @@ final class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('Time in seconds to cache data from the API. Default is 172800 seconds (2 days).'),
     ];
 
-    $content_types = NodeType::loadMultiple();
+    $content_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
     $options = [];
     foreach ($content_types as $content_type) {
       $options[$content_type->id()] = $content_type->label();
@@ -120,13 +126,33 @@ final class SettingsForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
-  public function updateUsernameFieldOptions(array &$form, FormStateInterface $form_state) {
+  /**
+   * Ajax callback to set the username field options for selected content type.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state object.
+   *
+   * @return array
+   *   Updated form object.
+   */
+  public function updateUsernameFieldOptions(array &$form, FormStateInterface $form_state): array {
     $content_type = $form_state->getValue('attached_content_type');
     $form['attached']['attached_username_field']['#options'] = $this->getUsernameFieldOptions($content_type);
     return $form['attached']['attached_username_field'];
   }
 
-  protected function getUsernameFieldOptions($content_type) {
+  /**
+   * Get the username field options for the selected content type.
+   *
+   * @param string $content_type
+   *   The content type.
+   *
+   * @return array
+   *   Fields avaiable on the content type.
+   */
+  protected function getUsernameFieldOptions($content_type): array {
     $options = [];
     if ($content_type) {
       $fields = $this->entityFieldManager->getFieldDefinitions('node', $content_type);
