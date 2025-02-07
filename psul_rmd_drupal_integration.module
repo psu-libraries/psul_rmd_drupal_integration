@@ -5,6 +5,8 @@
  * Contains hook implementations for the psul_rmd_drupal_integration module.
  */
 
+use Drupal\psul_rmd_drupal_integration\RmdDataFetcherInterface;
+
 /**
  * Implements hook_theme().
  */
@@ -16,6 +18,117 @@ function psul_rmd_drupal_integration_theme($existing, $type, $theme, $path) {
       ],
       'template' => 'psul-rmd-publications',
     ],
-
+    'psul_rmd_item' => [
+      'variables' => [
+        'title' => '',
+        'content' => '',
+      ],
+      'template' => 'psul-rmd-item',
+    ],
   ];
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function psul_rmd_drupal_integration_entity_extra_field_info(): array {
+  $extra = [];
+
+  $config = \Drupal::config('psul_rmd_drupal_integration.settings');
+  $content_type = $config->get('attached_content_type');
+  $username_field = $config->get('attached_username_field');
+
+  if ($content_type && $username_field) {
+
+    foreach (RmdDataFetcherInterface::FIELDS as $key => $label) {
+      $extra['node'][$content_type]['display']['rmd_data_' . $key] = [
+        'label' => t('RMD Data: @label', ['@label' => $label]),
+        'description' => t('@label from the Researcher Metadata Database API.', ['@label' => $label]),
+        'weight' => 100,
+        'visible' => FALSE,
+      ];
+    }
+
+    $extra['node'][$content_type]['display']['rmd_publications'] = [
+      'label' => t('RMD Data: All Publications'),
+      'description' => t('Publications from the RMD API.'),
+      'weight' => 100,
+      'visible' => FALSE,
+    ];
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
+  $config = \Drupal::config('psul_rmd_drupal_integration.settings');
+  $content_type = $config->get('attached_content_type');
+  $username_field = $config->get('attached_username_field');
+
+  // Skip if the content type or username field are not set.
+  if (!$content_type || !$username_field) {
+    return;
+  }
+
+  // Skip if the current node is not the correct content type or does not have
+  // the username field.
+  if ($variables['node']->getType() !== $content_type || !$variables['node']->hasField($username_field)) {
+    return;
+  }
+
+  // Get the username from the node and return if it is not found.
+  $username = $variables['node']->get($username_field)->getString();
+  if (!$username) {
+    return;
+  }
+
+  // Check if any rmd_ fields are displayed for the current view mode.
+  $view_mode = $variables['view_mode'];
+  $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $content_type . '.' . $view_mode);
+
+  // Use the default display if no display is defined for the view mode.
+  if (!$display) {
+    $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $content_type . '.default');
+    if (!$display) {
+      return;
+    }
+  }
+
+  /** @var \Drupal\Core\Entity\Entity\EntityViewDisplay $display */
+  $fields = $display->get('content');
+  $rmd_fields_displayed = array_filter(array_keys($fields), function ($field_name) {
+    return str_starts_with($field_name, 'rmd_');
+  });
+
+  if (empty($rmd_fields_displayed)) {
+    // There are no RMD fields displayed on this view mode.
+    return;
+  }
+
+  // Fetch RMD data using the username.
+  $rmd_data_fetcher = \Drupal::service('psul_rmd_drupal_integration.fetcher');
+  $rmd_data = $rmd_data_fetcher->getProfileData($username);
+
+  // Skip if no data is returned.
+  if (!$rmd_data || empty($rmd_data['attributes'])) {
+    return;
+  }
+
+  // Add the RMD data to the node variables.
+  foreach (RmdDataFetcherInterface::FIELDS as $key => $label) {
+    if (in_array('rmd_data_' . $key, $rmd_fields_displayed)) {
+      $variables['content']['rmd_data_' . $key] = [
+        '#theme' => 'psul_rmd_item',
+        '#title' => $label,
+        '#content' => $rmd_data['attributes'][$key] ?? '',
+      ];
+    }
+  }
+
+  if (isset($rmd_fields_displayed['publications'])) {
+    $variables['content']['rmd_publications'] = $rmd_data_fetcher->getProfilePublications($username);
+  }
 }
