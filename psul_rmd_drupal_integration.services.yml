@@ -1,0 +1,4 @@
+services:
+  psul_rmd_drupal_integration.fetcher:
+    class: Drupal\psul_rmd_drupal_integration\RmdDataFetcher
+    arguments: ['@cache.data', '@http_client', '@config.factory']

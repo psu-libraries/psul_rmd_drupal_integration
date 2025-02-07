@@ -1,0 +1,19 @@
+{{ attach_library('psul_rmd_drupal_integration/rmd_citations') }}
+
+{% if items %}
+  <div class="rmd-publications">
+  {% for label, item in items %}
+    {# Other Publications are grouped so we are handling this here. #}
+    {% if item is iterable %}
+      <h3 class="rmd-publications--sublabel">{{ label }}</h3>
+      {% for subitem in item %}
+        {# Output is raw because citations contain spans. #}
+        <p class="rmd-publications--pub">{{ subitem|raw }}</p>
+      {% endfor %}
+    {% else %}
+      {# Output is raw because citations contain spans. #}
+      <p class="rmd-publications--pub">{{ item|raw }}</p>
+    {% endif %}
+  {% endfor %}
+  </div>
+{% endif %}

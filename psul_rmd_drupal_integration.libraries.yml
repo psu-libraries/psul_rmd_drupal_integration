@@ -1,0 +1,4 @@
+rmd_citations:
+  css:
+    component:
+      css/rmd-citations.css: {}
