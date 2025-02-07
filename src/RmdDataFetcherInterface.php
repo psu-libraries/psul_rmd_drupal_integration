@@ -10,6 +10,37 @@ namespace Drupal\psul_rmd_drupal_integration;
 interface RmdDataFetcherInterface {
 
   /**
+   * Fields to fetch from the remote metadata database.
+   *
+   * @var array
+   */
+  const FIELDS = [
+    "name" => "Name",
+    "organization_name" => "Organization Name",
+    "title" => "Title",
+    "email" => "Email",
+    "office_location" => "Office Location",
+    "office_phone_number" => "Office Phone Number",
+    "personal_website" => "Personal Website",
+    "total_scopus_citations" => "Total Scopus Citations",
+    "scopus_h_index" => "Scopus H-Index",
+    "pure_profile_url" => "Pure Profile URL",
+    "orcid_identifier" => "ORCID Identifier",
+    "bio" => "About Me",
+    "teaching_interests" => "Teaching Interests",
+    "research_interests" => "Research Interests",
+    "publications" => "Publications",
+    "other_publications" => "Other Publications",
+    "grants" => "Grants",
+    "presentations" => "Presentations",
+    "performances" => "Performances",
+    "master_advising_roles" => "Master Advising Roles",
+    "phd_advising_roles" => "PhD Advising Roles",
+    "news_stories" => "News Stories",
+    "education_history" => "Education History",
+  ];
+
+  /**
    * Get data from the remote metadata database.
    *
    * @param string $username
