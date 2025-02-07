@@ -19,8 +19,8 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritDoc}
    */
   public function __construct(
-    protected readonly EntityFieldManagerInterface $entityFieldManager,
-    protected readonly EntityTypeManagerInterface $entityTypeManager,
+    protected EntityFieldManagerInterface $entityFieldManager,
+    protected EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
   /**
@@ -121,6 +121,7 @@ final class SettingsForm extends ConfigFormBase {
           ':input[name="attached_content_type"]' => ['!value' => ''],
         ],
       ],
+      '#validated' => TRUE,
     ];
 
     return parent::buildForm($form, $form_state);
