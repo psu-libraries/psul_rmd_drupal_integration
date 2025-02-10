@@ -1,0 +1,24 @@
+{% set classes = [
+  'psul-data-content',
+] %}
+
+{% if content %}
+<div {{ attributes.addClass(classes) }}>
+  {% if title %}
+    <h2 class="psul-data-content__title" >{{ title }}</h2>
+  {% endif %}
+
+  <div class="psul-data-content__content">
+    {% if content is iterable %}
+      {% for item in content %}
+        <div class="psul-data-content__content-item">
+          {{ item|raw }}
+        </div>
+      {% endfor %}
+    {% else %}
+      {{ content|raw }}
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
