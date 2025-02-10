@@ -15,18 +15,25 @@ composer require psul-libraries/psul_rmd_drupal_integration`;
 drush en psul_rmd_drupal_integration;
 ```
 
+### Configuration
+
+Go to **Configuration > Web Services > PSU Libraries: RMD Settings** to configure the module.
+
+- **API URL**: The base URL for API requests.  You should not need to use this.
+- **API Key**: The API Key is not required for Profile data but may be required to pull in future data.
+- **Cache TTL**: Set how long the RMD Data should be cached (in seconds)
+- **Content Settings**: The RMD data can be exposed as Extra Fields on nodes.  This will allow the data to be placed using Display settings or layout builder.
+
 ## Usage
 
 ### User Profile Data
-The user profile API endpoint does not require and API key but other
+The user profile API endpoint does not require an API key.
 
 ```php
 $username = 'hna2';
 
 // Fetch user publications using the RmdDataFetcher service.
-$rmd_data_fetcher = \Drupal::service('rmd_data_fetcher');
-$publications = $rmd_data_fetcher->getProfilePublications($username);
-
+$rmd_data_fetcher = \Drupal::service('psul_rmd_drupal_integration.fetcher');
 $publications = $rmd_data_fetcher->getProfilePublications($username);
 
 // Get All data unformatted.

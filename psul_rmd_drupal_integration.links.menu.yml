@@ -1,5 +1,5 @@
 psul_rmd_drupal_integration.settings:
-  title: PSU Libraries RMD Settings
+  title: 'PSU Libraries: RMD Settings'
   description: Settings for Researcher Metadata Database Integration.
   parent: system.admin_config_services
   route_name: psul_rmd_drupal_integration.settings
