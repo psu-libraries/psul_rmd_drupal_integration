@@ -29,7 +29,7 @@
   <img src="{{ image_url }}" alt="ORCID iD" class="orcid_link--image"/>
 
   <a href="https://orcid.org/{{ orcid }}"
-    {{ orchid_link_attributes.addClass(link_classes).setAttribute('aria-label', 'View ORCID record') }}>
+    {{ orchid_link_attributes.addClass(link_classes).setAttribute('aria-label', 'View ORCID record').setAttribute('target', '_blank') }}>
 
 
     <span class="orcid-link--text">
