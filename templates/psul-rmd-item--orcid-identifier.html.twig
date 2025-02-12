@@ -1,0 +1,17 @@
+{% set classes = [
+  'psul-data-content',
+] %}
+
+{% if content %}
+<div {{ attributes.addClass(classes) }}>
+  <div class="psul-data-content__content">
+  {%
+    include 'psul_rmd_drupal_integration:orcid_link' with {
+      orcid: content|replace({'https://orcid.org/': ''}),
+      authenticated: true,
+      format: 'full'
+    }
+  %}
+  </div>
+</div>
+{% endif %}

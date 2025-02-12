@@ -1,0 +1,43 @@
+'$schema': 'https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json'
+name: ORCID iD Link
+status: stable
+description: Add list of links from A to Z.
+props:
+  type: 'object'
+  required:
+    - orcid
+    - authenticated
+  properties:
+    orcid:
+      type: 'string'
+      title: Letters
+      description: The orcid (not the url)
+    authenticated:
+      type: 'boolean'
+      title: Authenticated
+      description: Is the ORCID authenticated?
+      default: true
+    format:
+      type: 'string'
+      title: Format
+      description: The format of the ORCID iD.
+      enum:
+        - full
+        - compact
+        - inline
+      default: full
+    inline_text:
+      type: 'string'
+      title: Inline Text
+      description: The text to display when the format is inline.
+    logo_color:
+      type: 'string'
+      title: Logo Color
+      description: The color of the ORCID logo.
+      enum:
+        - mono
+        - reversed
+        - default
+      default: default
+    orcid_attributes:
+      type: 'Drupal\Core\Template\Attribute'

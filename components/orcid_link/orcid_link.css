@@ -1,0 +1,15 @@
+.orcid-link {
+  display: inline-flex;
+  flex-direction: row;
+  gap: .25em;
+}
+
+img.orcid_link--image {
+  height: 1.25em;
+  order: 0;
+  align-self: center;
+}
+
+.orcid-link__inline .orcid_link--image {
+  order: 1;
+}

@@ -26,6 +26,13 @@ function psul_rmd_drupal_integration_theme($existing, $type, $theme, $path) {
       ],
       'template' => 'psul-rmd-item',
     ],
+    'psul_rmd_item__orcid_identifier' => [
+      'variables' => [
+        'title' => '',
+        'content' => '',
+      ],
+      'template' => 'psul-rmd-item--orcid-identifier',
+    ],
   ];
 }
 
