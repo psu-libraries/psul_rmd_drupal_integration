@@ -1,5 +1,6 @@
 {% set classes = [
   'psul-data-content',
+  'psul-data-content--' ~ type|clean_class,
 ] %}
 
 {% if content %}
