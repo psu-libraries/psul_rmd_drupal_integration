@@ -129,7 +129,7 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
 
   // Add the RMD data to the node variables.
   foreach (RmdDataFetcherInterface::FIELDS as $key => $label) {
-    if (in_array('rmd_data_' . $key, $rmd_fields_displayed)) {
+    if (in_array('rmd_data_' . $key, $rmd_fields_displayed) && !empty($rmd_data['attributes'][$key])) {
       $variables['content']['rmd_data_' . $key] = [
         '#theme' => 'psul_rmd_item',
         '#type' => $key,
