@@ -1,13 +1,17 @@
 .orcid-link {
-  display: inline-flex;
+  display: flex;
   flex-direction: row;
-  gap: .25em;
+  gap: .25rem;
 }
 
 img.orcid_link--image {
-  height: 1.25em;
+  height: 1.5rem;
   order: 0;
   align-self: center;
+}
+
+.orcid-link__inline {
+  display: inline-flex;
 }
 
 .orcid-link__inline .orcid_link--image {
