@@ -1,7 +1,7 @@
 .orcid-link {
   display: flex;
   flex-direction: row;
-  gap: .25rem;
+  gap: .5rem;
 }
 
 img.orcid_link--image {
@@ -12,6 +12,7 @@ img.orcid_link--image {
 
 .orcid-link__inline {
   display: inline-flex;
+  gap: .25rem;
 }
 
 .orcid-link__inline .orcid_link--image {
