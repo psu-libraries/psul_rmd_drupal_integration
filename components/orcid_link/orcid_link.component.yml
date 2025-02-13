@@ -39,5 +39,9 @@ props:
         - reversed
         - default
       default: default
+    profile_name:
+      type: 'string'
+      title: Profile Name
+      description: The name of person associated with the ORCID iD.
     orcid_attributes:
       type: 'Drupal\Core\Template\Attribute'
