@@ -127,6 +127,9 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
 
   // Fetch RMD data using the username.
   $rmd_data_fetcher = \Drupal::service('psul_rmd_drupal_integration.fetcher');
+  $rmd_data_fetcher->addCacheTags([
+    'node:' . $variables['node']->id(),
+  ]);
   $rmd_data = $rmd_data_fetcher->getProfileData($username);
 
   // Skip if no data is returned.
@@ -142,8 +145,17 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
         '#type' => $key,
         '#title' => $label,
         '#content' => $rmd_data['attributes'][$key] ?? '',
+
       ];
     }
+  }
+
+  // Add cache tags and parameters to the render array so that we can
+  // clear rmd_data specifically and bust page caches when ttl is
+  // reached.
+  $variables['#cache']['tags'][] = 'rmd_data:profile:' . $username;
+  if (empty($variables['#cache']['max-age'])) {
+    $variables['#cache']['max-age'] = \Drupal::config('psul_rmd_drupal_integration.settings')->get('cache_ttl') ?? 172800;
   }
 
   if (isset($rmd_fields_displayed['publications'])) {

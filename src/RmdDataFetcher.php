@@ -25,6 +25,11 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   protected $data = [];
 
   /**
+   * Cache tags.
+   */
+  protected array $cacheTags = ['rmd_data'];
+
+  /**
    * Publication types.
    *
    * @var array
@@ -51,7 +56,15 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   /**
    * {@inheritdoc}
    */
+  public function addCacheTags(array $tags): void {
+    $this->cacheTags = array_merge($tags, $this->cacheTags);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getProfileData(string $username, string $attribute = ''): array {
+    $this->addCacheTags(['rmd_data:profile:' . $username]);
     $this->fetchUserData($username);
 
     if (!isset($this->data['data'])) {
@@ -127,7 +140,8 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       $this->cacheData->set(
         $cache_id,
         $data,
-        time() + $config->get('cache_ttl') ?? 172800
+        time() + $config->get('cache_ttl') ?? 172800,
+        $this->cacheTags,
       );
 
       $this->data = $data;
