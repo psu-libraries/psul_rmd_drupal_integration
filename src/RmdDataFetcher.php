@@ -133,6 +133,14 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       $this->data = $data;
     }
     catch (GuzzleException | \Exception $e) {
+      if ($e->getCode() === 404 && str_contains($e->getMessage(), 'User not found')) {
+        $this->cacheData->set(
+          $cache_id,
+          ['data' => []],
+          time() + $config->get('cache_ttl') ?? 172800
+        );
+        return;
+      }
       $this->data = ['data' => []];
       $this->getLogger('psul_rmd_drupal_integration')->error($e->getMessage());
     }
