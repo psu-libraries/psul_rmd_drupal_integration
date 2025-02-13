@@ -64,4 +64,12 @@ interface RmdDataFetcherInterface {
    */
   public function getProfilePublications(string $username): array;
 
+  /**
+   * Add cache tag.
+   *
+   * @param array $tags
+   *   Additional cache tags to add to data caches.
+   */
+  public function addCacheTags(array $tags): void;
+
 }
