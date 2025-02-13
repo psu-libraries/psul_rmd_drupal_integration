@@ -23,6 +23,7 @@ function psul_rmd_drupal_integration_theme($existing, $type, $theme, $path) {
         'title' => '',
         'content' => '',
         'type' => '',
+        'profile_name' => '',
       ],
       'template' => 'psul-rmd-item',
     ],
@@ -30,6 +31,7 @@ function psul_rmd_drupal_integration_theme($existing, $type, $theme, $path) {
       'variables' => [
         'title' => '',
         'content' => '',
+        'profile_name' => '',
       ],
       'template' => 'psul-rmd-item--orcid-identifier',
     ],
@@ -142,6 +144,7 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
         '#type' => $key,
         '#title' => $label,
         '#content' => $rmd_data['attributes'][$key] ?? '',
+        '#profile_name' => $rmd_data['attributes']['name'],
       ];
     }
   }
