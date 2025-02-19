@@ -51,7 +51,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function getProfileData(string $username, string $attribute = ''): array {
+  public function getProfileData(string $username, string $attribute = ''): array|string {
     $this->fetchUserData($username);
 
     if (!isset($this->data['data'])) {
