@@ -63,7 +63,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function getProfileData(string $username, string $attribute = ''): array {
+  public function getProfileData(string $username, string $attribute = ''): array|string {
     $this->addCacheTags(['rmd_data:profile:' . $username]);
     $this->fetchUserData($username);
 

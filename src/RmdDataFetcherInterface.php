@@ -48,10 +48,10 @@ interface RmdDataFetcherInterface {
    * @param string $attribute
    *   Return a specific attribute from the data.  Optional.
    *
-   * @return array
+   * @return array|string
    *   The data from the remote metadata database or empty array.
    */
-  public function getProfileData(string $username, string $attribute = ''): array;
+  public function getProfileData(string $username, string $attribute = ''): array|string;
 
   /**
    * Return publication data from RMD.
