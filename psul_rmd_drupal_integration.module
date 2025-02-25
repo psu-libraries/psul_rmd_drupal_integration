@@ -127,6 +127,13 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
     return;
   }
 
+  // Add hook to allow others to skip adding RMD data to for a node.
+  $skip_node = FALSE;
+  \Drupal::moduleHandler()->alter('psul_rmd_drupal_integration_preprocess_node', $skip_node, $variables['node']);
+  if ($skip_node) {
+    return;
+  }
+
   // Fetch RMD data using the username.
   $rmd_data_fetcher = \Drupal::service('psul_rmd_drupal_integration.fetcher');
   $rmd_data_fetcher->addCacheTags([
