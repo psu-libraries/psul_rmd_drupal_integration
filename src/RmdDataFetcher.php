@@ -140,7 +140,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       $this->cacheData->set(
         $cache_id,
         $data,
-        time() + $config->get('cache_ttl') ?? 172800,
+        time() + $config->get('cache_ttl') ?? 86400,
         $this->cacheTags,
       );
 
@@ -151,7 +151,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
         $this->cacheData->set(
           $cache_id,
           ['data' => []],
-          time() + $config->get('cache_ttl') ?? 172800,
+          time() + $config->get('cache_ttl') ?? 86400,
           $this->cacheTags,
         );
         return;
