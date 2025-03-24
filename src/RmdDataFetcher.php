@@ -59,7 +59,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    * {@inheritdoc}
    */
   public function addCacheTags(array $tags): void {
-    $this->cacheTags = array_merge($tags, $this->cacheTags);
+    $this->cacheTags = array_merge($tags, ['rmd_data']);
   }
 
   /**
@@ -84,6 +84,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    * {@inheritdoc}
    */
   public function getProfilePublications(string $username): array {
+    $this->addCacheTags(['rmd_data:profile:' . $username]);
     $this->fetchUserData($username);
 
     $data = $this->data[$username] ?? [];
