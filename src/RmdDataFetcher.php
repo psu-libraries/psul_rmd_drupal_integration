@@ -121,7 +121,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
 
     $cache_id = "psul_rmd_data:{$endpoint}:{$username}";
     if ($cache = $this->cacheData->get($cache_id)) {
-      $this->data = $cache->data;
+      $this->data[$username] = $cache->data;
       return;
     }
 
