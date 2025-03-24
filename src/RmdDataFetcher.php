@@ -20,6 +20,8 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   /**
    * Data fetched from the remote metadata database.
    *
+   * This will be keyed to the $username to prevent data collisions.
+   *
    * @var array
    */
   protected $data = [];
@@ -67,15 +69,15 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
     $this->addCacheTags(['rmd_data:profile:' . $username]);
     $this->fetchUserData($username);
 
-    if (!isset($this->data['data'])) {
+    if (!isset($this->data[$username])) {
       return [];
     }
 
     if ($attribute) {
-      return $this->data['data']['attributes'][$attribute] ?? [];
+      return $this->data[$username]['attributes'][$attribute] ?? [];
     }
 
-    return $this->data['data'] ?? [];
+    return $this->data[$username] ?? [];
   }
 
   /**
@@ -84,7 +86,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   public function getProfilePublications(string $username): array {
     $this->fetchUserData($username);
 
-    $data = $this->data['data'] ?? [];
+    $data = $this->data[$username] ?? [];
     $output = [];
 
     foreach ($this->publicationKeys as $key => $label) {
@@ -113,7 +115,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    *   The endpoint to fetch data from.
    */
   protected function fetchUserData(string $username, string $endpoint = 'profile'): void {
-    if (isset($this->data['data'])) {
+    if (isset($this->data[$username])) {
       return;
     }
 
@@ -136,27 +138,25 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
 
       $data = $response->getBody()->getContents();
       $data = json_decode($data, TRUE);
-
+      $this->data[$username] = $data['data'] ?? [];
       $this->cacheData->set(
         $cache_id,
-        $data,
+        $this->data[$username],
         time() + $config->get('cache_ttl') ?? 172800,
         $this->cacheTags,
       );
-
-      $this->data = $data;
     }
     catch (GuzzleException | \Exception $e) {
+      $this->data = [$username => []];
       if ($e->getCode() === 404 && str_contains($e->getMessage(), 'User not found')) {
         $this->cacheData->set(
           $cache_id,
-          ['data' => []],
+          [$username => []],
           time() + $config->get('cache_ttl') ?? 172800,
           $this->cacheTags,
         );
         return;
       }
-      $this->data = ['data' => []];
       $this->getLogger('psul_rmd_drupal_integration')->error($e->getMessage());
     }
   }
