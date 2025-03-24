@@ -5,6 +5,8 @@
  * Contains hook implementations for the psul_rmd_drupal_integration module.
  */
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\psul_rmd_drupal_integration\RmdDataFetcherInterface;
 
 /**
@@ -80,37 +82,32 @@ function psul_rmd_drupal_integration_entity_extra_field_info(): array {
 }
 
 /**
+ * Implements hook_entity_presave().
+ */
+function psul_rmd_drupal_integration_entity_presave(EntityInterface $entity) {
+  $username = _psul_rmd_drupal_integration_should_have_rmd_data($entity);
+  if ($username) {
+    $cache_id = 'psul_rmd_data:profile:' . $entity->label();
+    \Drupal::service('cache.rmd_data')->delete($cache_id);
+  }
+}
+
+/**
  * Implements hook_preprocess_node().
  */
 function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
-  $config = \Drupal::config('psul_rmd_drupal_integration.settings');
-  $content_type = $config->get('attached_content_type');
-  $username_field = $config->get('attached_username_field');
-
-  // Skip if the content type or username field are not set.
-  if (!$content_type || !$username_field) {
-    return;
-  }
-
-  // Skip if the current node is not the correct content type or does not have
-  // the username field.
-  if ($variables['node']->getType() !== $content_type || !$variables['node']->hasField($username_field)) {
-    return;
-  }
-
-  // Get the username from the node and return if it is not found.
-  $username = $variables['node']->get($username_field)->getString();
+  $username = _psul_rmd_drupal_integration_should_have_rmd_data($variables['node']);
   if (!$username) {
     return;
   }
 
   // Check if any rmd_ fields are displayed for the current view mode.
   $view_mode = $variables['view_mode'];
-  $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $content_type . '.' . $view_mode);
+  $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $variables['node']->getType() . '.' . $view_mode);
 
   // Use the default display if no display is defined for the view mode.
   if (!$display) {
-    $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $content_type . '.default');
+    $display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load('node.' . $variables['node']->getType() . '.default');
     if (!$display) {
       return;
     }
@@ -127,7 +124,7 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
     return;
   }
 
-  // Add hook to allow others to skip adding RMD data to for a node.
+  // Add hook to allow others to skip adding RMD data to a node.
   $skip_node = FALSE;
   \Drupal::moduleHandler()->alter('psul_rmd_drupal_integration_preprocess_node', $skip_node, $variables['node']);
   if ($skip_node) {
@@ -170,4 +167,34 @@ function psul_rmd_drupal_integration_preprocess_node(array &$variables) {
   if (isset($rmd_fields_displayed['publications'])) {
     $variables['content']['rmd_publications'] = $rmd_data_fetcher->getProfilePublications($username);
   }
+}
+
+/**
+ * Checks if the given entity should have RMD data.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity to check.
+ *
+ * @return string|null
+ *   The username if the entity should have RMD data, or NULL otherwise.
+ */
+function _psul_rmd_drupal_integration_should_have_rmd_data(EntityInterface $entity): ?string {
+  $config = \Drupal::config('psul_rmd_drupal_integration.settings');
+  $content_type = $config->get('attached_content_type');
+  $username_field = $config->get('attached_username_field');
+
+  // Skip if the content type or username field are not set.
+  if (!$content_type || !$username_field) {
+    return NULL;
+  }
+
+  // Skip if the current entity is not the correct content type or does not have
+  // the username field.
+  if (!($entity instanceof FieldableEntityInterface) || $entity->bundle() !== $content_type || !$entity->hasField($username_field)) {
+    return NULL;
+  }
+
+  // Get the username from the entity and return NULL if it is not found.
+  $username = $entity->get($username_field)->getString();
+  return $username ?: NULL;
 }
