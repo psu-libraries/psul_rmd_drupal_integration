@@ -8,6 +8,8 @@
             "email": "msh6004@psu.edu"
         }
     ],
-    "require": {},
-    "license": "GPL-2.0-or-later"
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "drupal/pcb": "^4.0"
+    }
 }

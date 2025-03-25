@@ -18,15 +18,6 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   use LoggerChannelTrait;
 
   /**
-   * Data fetched from the remote metadata database.
-   *
-   * This will be keyed to the $username to prevent data collisions.
-   *
-   * @var array
-   */
-  protected $data = [];
-
-  /**
    * Cache tags.
    */
   protected array $cacheTags = ['rmd_data'];
@@ -67,27 +58,31 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    */
   public function getProfileData(string $username, string $attribute = ''): array|string {
     $this->addCacheTags(['rmd_data:profile:' . $username]);
-    $this->fetchUserData($username);
+    $data = $this->fetchUserData($username);
 
-    if (!isset($this->data[$username])) {
+    if (empty($data)) {
       return [];
     }
 
     if ($attribute) {
-      return $this->data[$username]['attributes'][$attribute] ?? [];
+      return $data['attributes'][$attribute] ?? [];
     }
 
-    return $this->data[$username] ?? [];
+    return $data;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getProfilePublications(string $username): array {
-    $this->fetchUserData($username);
+    $this->addCacheTags(['rmd_data:profile:' . $username]);
+    $data = $this->fetchUserData($username);
 
-    $data = $this->data[$username] ?? [];
     $output = [];
+
+    if (empty($data)) {
+      return $output;
+    }
 
     foreach ($this->publicationKeys as $key => $label) {
 
@@ -113,16 +108,18 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    *   Username to fetch data for.
    * @param string $endpoint
    *   The endpoint to fetch data from.
+   *
+   * @return array|null
+   *   The user data or NULL.
    */
-  protected function fetchUserData(string $username, string $endpoint = 'profile'): void {
-    if (isset($this->data[$username])) {
-      return;
-    }
+  protected function fetchUserData(string $username, string $endpoint = 'profile'): array|null {
+    $data = [];
 
+    // Return the cached data if it exists.
     $cache_id = "psul_rmd_data:{$endpoint}:{$username}";
     if ($cache = $this->cacheData->get($cache_id)) {
-      $this->data = $cache->data;
-      return;
+      $this->resetCacheTags();
+      return $cache->data;
     }
 
     $config = $this->configFactory->get('psul_rmd_drupal_integration.settings');
@@ -138,27 +135,38 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
 
       $data = $response->getBody()->getContents();
       $data = json_decode($data, TRUE);
-      $this->data[$username] = $data['data'] ?? [];
+      $data = $data['data'] ?? [];
       $this->cacheData->set(
         $cache_id,
-        $this->data[$username],
-        time() + $config->get('cache_ttl') ?? 172800,
+        $data,
+        time() + $config->get('cache_ttl') ?? 86400,
         $this->cacheTags,
       );
+      $this->resetCacheTags();
     }
     catch (GuzzleException | \Exception $e) {
-      $this->data = [$username => []];
+      $data = [];
       if ($e->getCode() === 404 && str_contains($e->getMessage(), 'User not found')) {
         $this->cacheData->set(
           $cache_id,
-          [$username => []],
-          time() + $config->get('cache_ttl') ?? 172800,
+          $data,
+          time() + $config->get('cache_ttl') ?? 86400,
           $this->cacheTags,
         );
-        return;
+        $this->resetCacheTags();
+        return $data;
       }
       $this->getLogger('psul_rmd_drupal_integration')->error($e->getMessage());
     }
+
+    return $data;
+  }
+
+  /**
+   * Reset the cache tags array.
+   */
+  protected function resetCacheTags(): void {
+    $this->cacheTags = ['rmd_data'];
   }
 
 }

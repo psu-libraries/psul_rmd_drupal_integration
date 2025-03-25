@@ -1,4 +1,10 @@
 services:
+  cache.rmd_data:
+    class: Drupal\Core\Cache\CacheBackendInterface
+    tags:
+      - { name: cache.bin, default_backend: cache.backend.permanent_database }
+    factory: cache_factory:get
+    arguments: [rmd_data]
   psul_rmd_drupal_integration.fetcher:
     class: Drupal\psul_rmd_drupal_integration\RmdDataFetcher
-    arguments: ['@cache.data', '@http_client', '@config.factory']
+    arguments: ['@cache.rmd_data', '@http_client', '@config.factory']
