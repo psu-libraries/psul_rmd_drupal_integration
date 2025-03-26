@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations for the psul_rmd_drupal_integration module.
+ */
+
+/**
+ * Implements hook_update().
+ */
+function psul_rmd_drupal_integration_update_10001() {
+  \Drupal::service('module_installer')->install(['pcb']);
+}
