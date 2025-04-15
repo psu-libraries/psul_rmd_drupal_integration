@@ -7,9 +7,10 @@ namespace Drupal\psul_rmd_drupal_integration;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Logger\LoggerChannelTrait;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Class to fetch data from remote metadata database.
@@ -21,6 +22,14 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    * Cache tags.
    */
   protected array $cacheTags = ['rmd_data'];
+
+  /**
+   * Configs.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   *   The configuration object.
+   */
+  protected ImmutableConfig $configs;
 
   /**
    * Publication types.
@@ -44,7 +53,9 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
     private readonly CacheBackendInterface $cacheData,
     private readonly ClientInterface $httpClient,
     private readonly ConfigFactoryInterface $configFactory,
-  ) {}
+  ) {
+    $this->configs = $this->configFactory->get('psul_rmd_drupal_integration.settings');
+  }
 
   /**
    * {@inheritdoc}
@@ -84,12 +95,12 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       return $output;
     }
 
-    foreach ($this->publicationKeys as $key => $label) {
-
+    $publicationKeys = $this->configs->get('publications_display') ?? [];
+    foreach ($publicationKeys as $key) {
       if (!empty($data['attributes'][$key])) {
         $output[$key] = [
-          'title' => $label,
-          'id' => Html::getUniqueId('RMD ' . $label),
+          'title' => $this->publicationKeys[$key],
+          'id' => Html::getUniqueId('RMD ' . $this->publicationKeys[$key]),
           'content' => [
             '#theme' => 'psul_rmd_publications',
             '#items' => $data['attributes'][$key],
@@ -122,10 +133,8 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       return $cache->data;
     }
 
-    $config = $this->configFactory->get('psul_rmd_drupal_integration.settings');
-
     try {
-      $url = $config->get('api_url') ?? 'https://metadata.libraries.psu.edu/v1/';
+      $url = $this->configs->get('api_url') ?? 'https://metadata.libraries.psu.edu/v1/';
       $url .= "users/{$username}/{$endpoint}";
       $response = $this->httpClient->request('GET', $url, [
         'headers' => [
@@ -139,7 +148,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       $this->cacheData->set(
         $cache_id,
         $data,
-        time() + $config->get('cache_ttl') ?? 86400,
+        time() + $this->configs->get('cache_ttl') ?? 86400,
         $this->cacheTags,
       );
       $this->resetCacheTags();
@@ -150,7 +159,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
         $this->cacheData->set(
           $cache_id,
           $data,
-          time() + $config->get('cache_ttl') ?? 86400,
+          time() + $this->configs->get('cache_ttl') ?? 86400,
           $this->cacheTags,
         );
         $this->resetCacheTags();
