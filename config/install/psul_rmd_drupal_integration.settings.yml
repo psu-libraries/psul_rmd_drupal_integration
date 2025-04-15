@@ -3,3 +3,10 @@ api_key: ''
 cache_ttl: 172800
 attached_content_type: ''
 attached_username_field: ''
+publications_display:
+  - publications
+  - other_publications
+  - grants
+  - performances
+  - master_advising_roles
+  - phd_advising_roles

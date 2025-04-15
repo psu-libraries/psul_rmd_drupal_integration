@@ -124,6 +124,29 @@ final class SettingsForm extends ConfigFormBase {
       '#validated' => TRUE,
     ];
 
+    $form['publications'] = [
+      '#type' => 'details',
+      '#description' => $this->t('Configure how publications should be displayed.'),
+      '#title' => $this->t('Publication Settings'),
+      '#open' => TRUE,
+    ];
+
+    $form['publications']['publications_display'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Publications to display'),
+      '#options' => [
+        'publications' => $this->t('Publications'),
+        'grants' => $this->t('Grants'),
+        'presentations' => $this->t('Presentations'),
+        'performances' => $this->t('Performances'),
+        'master_advising_roles' => $this->t('Master Advising Roles'),
+        'phd_advising_roles' => $this->t('PhD Advising Roles'),
+        'other_publications' => $this->t('Other Publications'),
+        'news_stories' => $this->t('News Stories'),
+      ],
+      '#default_value' => $this->config('psul_rmd_drupal_integration.settings')->get('publications_display') ?? [],
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -185,6 +208,7 @@ final class SettingsForm extends ConfigFormBase {
       ->set('cache_ttl', $form_state->getValue('cache_ttl'))
       ->set('attached_content_type', $form_state->getValue('attached_content_type'))
       ->set('attached_username_field', $form_state->getValue('attached_username_field'))
+      ->set('publications_display', $form_state->getValue('publications_display'))
       ->save();
     parent::submitForm($form, $form_state);
   }

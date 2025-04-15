@@ -6,8 +6,24 @@
  */
 
 /**
- * Implements hook_update().
+ * Install the Permanent Cache Bin module.
  */
 function psul_rmd_drupal_integration_update_10001() {
   \Drupal::service('module_installer')->install(['pcb']);
+}
+
+/**
+ * Set the publications_display setting.
+ */
+function psul_rmd_drupal_integration_update_10002() {
+  \Drupal::configFactory()->getEditable('psul_rmd_drupal_integration.settings')
+    ->set('publications_display', [
+      'publications',
+      'other_publications',
+      'grants',
+      'performances',
+      'master_advising_roles',
+      'phd_advising_roles',
+    ])
+    ->save();
 }
