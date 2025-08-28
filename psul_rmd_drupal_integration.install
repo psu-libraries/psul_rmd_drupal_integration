@@ -27,3 +27,15 @@ function psul_rmd_drupal_integration_update_10002() {
     ])
     ->save();
 }
+
+/**
+ * Remove 'content_type' and 'username_field' from settings.
+ *
+ * These legacy settings are causing issues with the schema validation.
+ */
+function psul_rmd_drupal_integration_update_10003() {
+  $config = \Drupal::configFactory()->getEditable('psul_rmd_drupal_integration.settings');
+  $config->clear('content_type');
+  $config->clear('username_field');
+  $config->save();
+}
