@@ -57,13 +57,14 @@ final class SettingsForm extends ConfigFormBase {
       '#default_value' => $this->config('psul_rmd_drupal_integration.settings')->get('api_url') ?? 'https://metadata.libraries.psu.edu/v1/',
       '#required' => TRUE,
       '#description' => $this->t('URL to the API endpoint. This should end with a slash.  The API documentation can be found at <a href="https://metadata.libraries.psu.edu/api_docs">https://metadata.libraries.psu.edu/api_docs</a>.'),
+      '#config_target' => 'psul_rmd_drupal_integration.settings:api_url',
     ];
 
     $form['api_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('API Key'),
-      '#default_value' => $this->config('psul_rmd_drupal_integration.settings')->get('api_key') ?? '',
       '#description' => $this->t('API key to access the API. This is currently not required to pull profile data.'),
+      '#config_target' => 'psul_rmd_drupal_integration.settings:api_key',
     ];
 
     $form['cache_ttl'] = [
@@ -72,6 +73,7 @@ final class SettingsForm extends ConfigFormBase {
       '#default_value' => $this->config('psul_rmd_drupal_integration.settings')->get('cache_ttl') ?? 172800,
       '#required' => TRUE,
       '#description' => $this->t('Time in seconds to cache data from the API. Default is 172800 seconds (2 days).'),
+      '#config_target' => 'psul_rmd_drupal_integration.settings:cache_ttl',
     ];
 
     $content_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
@@ -102,6 +104,7 @@ final class SettingsForm extends ConfigFormBase {
         'event' => 'change',
         'wrapper' => 'attached-username-field-wrapper',
       ],
+      '#config_target' => 'psul_rmd_drupal_integration.settings:attached_content_type',
     ];
 
     $form['attached']['attached_username_field'] = [
@@ -122,6 +125,7 @@ final class SettingsForm extends ConfigFormBase {
         ],
       ],
       '#validated' => TRUE,
+      '#config_target' => 'psul_rmd_drupal_integration.settings:attached_username_field',
     ];
 
     $form['publications'] = [
@@ -145,6 +149,7 @@ final class SettingsForm extends ConfigFormBase {
         'news_stories' => $this->t('News Stories'),
       ],
       '#default_value' => $this->config('psul_rmd_drupal_integration.settings')->get('publications_display') ?? [],
+      '#config_target' => 'psul_rmd_drupal_integration.settings:publications_display',
     ];
 
     return parent::buildForm($form, $form_state);
