@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\psul_rmd_drupal_integration\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
@@ -19,17 +21,23 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritDoc}
    */
   public function __construct(
+    protected ConfigFactoryInterface $config_factory,
+    protected TypedConfigManagerInterface $typed_config,
     protected EntityFieldManagerInterface $entityFieldManager,
     protected EntityTypeManagerInterface $entityTypeManager,
-  ) {}
+  ) {
+    parent::__construct($config_factory, $typed_config);
+  }
 
   /**
    * {@inheritDoc}
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('entity_field.manager'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
     );
   }
 
