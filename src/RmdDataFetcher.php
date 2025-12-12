@@ -32,21 +32,6 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   protected ImmutableConfig $configs;
 
   /**
-   * Publication types.
-   *
-   * @var array
-   */
-  protected $publicationKeys = [
-    'publications' => 'Publications',
-    'grants' => 'Grants',
-    'presentations' => 'Presentations',
-    'performances' => 'Performances',
-    'master_advising_roles' => 'Master Advising Roles',
-    'phd_advising_roles' => 'PhD Advising Roles',
-    'other_publications' => 'Other Publications',
-  ];
-
-  /**
    * Constructs a RmdDataFetcher object.
    */
   public function __construct(
@@ -99,8 +84,8 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
     foreach ($publicationKeys as $key) {
       if (!empty($data['attributes'][$key])) {
         $output[$key] = [
-          'title' => $this->publicationKeys[$key],
-          'id' => Html::getUniqueId('RMD ' . $this->publicationKeys[$key]),
+          'title' => self::FIELDS[$key],
+          'id' => Html::getUniqueId('RMD ' . self::FIELDS[$key]),
           'content' => [
             '#theme' => 'psul_rmd_publications',
             '#items' => $data['attributes'][$key],
