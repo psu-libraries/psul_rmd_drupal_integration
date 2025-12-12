@@ -59,6 +59,10 @@ class RmdTokensHooks {
     // Define individual field tokens under the RMD Data type.
     $rmd_tokens = [];
     foreach (RmdDataFetcherInterface::FIELDS as $key => $label) {
+      if (in_array($key, RmdDataFetcherInterface::PUBLICATION_FIELDS)) {
+        // Skip publication fields until we determine how these could be used.
+        continue;
+      }
       $rmd_tokens[$key] = [
         'name' => $label,
         'description' => $this->t('RMD field: @label', ['@label' => $label]),
@@ -111,11 +115,16 @@ class RmdTokensHooks {
 
       foreach ($tokens as $name => $original) {
         if (isset(RmdDataFetcherInterface::FIELDS[$name]) && isset($rmd_data['attributes'][$name])) {
-          $replacements[$original] = $rmd_data['attributes'][$name];
+          if (is_array($rmd_data['attributes'][$name])) {
+            // Some items are a simple array so separate them with a comma.
+            $replacements[$original] = implode(", ", $rmd_data['attributes'][$name]);
+          }
+          else {
+            $replacements[$original] = $rmd_data['attributes'][$name];
+          }
         }
       }
     }
-
     return $replacements;
   }
 
