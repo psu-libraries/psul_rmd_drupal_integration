@@ -8,3 +8,7 @@ services:
   psul_rmd_drupal_integration.fetcher:
     class: Drupal\psul_rmd_drupal_integration\RmdDataFetcher
     arguments: ['@cache.rmd_data', '@http_client', '@config.factory']
+  Drupal\psul_rmd_drupal_integration\RmdDataFetcherInterface: '@psul_rmd_drupal_integration.fetcher'
+  Drupal\psul_rmd_drupal_integration\Hook\RmdTokensHooks:
+    class: \Drupal\psul_rmd_drupal_integration\Hook\RmdTokensHooks
+    autowire: true

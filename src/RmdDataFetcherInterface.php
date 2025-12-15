@@ -41,6 +41,21 @@ interface RmdDataFetcherInterface {
   ];
 
   /**
+   * Denotes which fields contain publication data.
+   *
+   * @var array
+   */
+  const PUBLICATION_FIELDS = [
+    'publications',
+    'grants',
+    'presentations',
+    'performances',
+    'master_advising_roles',
+    'phd_advising_roles',
+    'other_publications',
+  ];
+
+  /**
    * Get data from the remote metadata database.
    *
    * @param string $username

@@ -10,6 +10,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\psul_rmd_drupal_integration\RmdDataFetcherInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -146,16 +147,7 @@ final class SettingsForm extends ConfigFormBase {
     $form['publications']['publications_display'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Publications to display'),
-      '#options' => [
-        'publications' => $this->t('Publications'),
-        'grants' => $this->t('Grants'),
-        'presentations' => $this->t('Presentations'),
-        'performances' => $this->t('Performances'),
-        'master_advising_roles' => $this->t('Master Advising Roles'),
-        'phd_advising_roles' => $this->t('PhD Advising Roles'),
-        'other_publications' => $this->t('Other Publications'),
-        'news_stories' => $this->t('News Stories'),
-      ],
+      '#options' => array_intersect_key(RmdDataFetcherInterface::FIELDS, array_flip(RmdDataFetcherInterface::PUBLICATION_FIELDS)),
       '#default_value' => $this->config('psul_rmd_drupal_integration.settings')->get('publications_display') ?? [],
       '#config_target' => 'psul_rmd_drupal_integration.settings:publications_display',
     ];
