@@ -1,0 +1,34 @@
+version: 2.1
+
+parameters:
+  PHP_VERSION:
+    type: string
+    default: "8.3"
+
+jobs:
+  test:
+    docker:
+      - image: cimg/php:<< pipeline.parameters.PHP_VERSION >>
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - composer-v1-{{ checksum "composer.json" }}
+            - composer-v1-
+      - run:
+          name: Install Dependencies
+          command: composer install --no-interaction --no-progress --prefer-dist
+      - save_cache:
+          key: composer-v1-{{ checksum "composer.json" }}
+          paths:
+            - ~/.composer/cache
+      - run:
+          name: Run PHPUnit Tests
+          command: vendor/bin/phpunit --log-junit test-results/phpunit/junit.xml
+      - store_test_results:
+          path: test-results
+
+workflows:
+  build-and-test:
+    jobs:
+      - test
