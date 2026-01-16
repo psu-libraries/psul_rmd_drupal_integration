@@ -80,6 +80,32 @@ interface RmdDataFetcherInterface {
   public function getProfilePublications(string $username): array;
 
   /**
+   * Return organizations from RMD.
+   *
+   * @param bool $flatten
+   *   Flatten the organization structure to a simple list.
+   *
+   * @return array
+   *   The organization data from the remote metadata database or empty array.
+   */
+  public function getOrgs(bool $flatten = TRUE): array;
+
+  /**
+   * Return organization publications from RMD.
+   *
+   * @param string $org_id
+   *   The organization ID to fetch data for.
+   * @param int $count
+   *   The number of items to return.
+   * @param int $offset
+   *   The offset to start returning items from.
+   *
+   * @return array
+   *   The publication data from the remote metadata database or empty array.
+   */
+  public function getOrgPublications(int $org_id, int $count = 50, int $offset = 0): array;
+
+  /**
    * Add cache tag.
    *
    * @param array $tags

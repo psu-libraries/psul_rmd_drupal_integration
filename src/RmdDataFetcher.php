@@ -54,7 +54,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    */
   public function getProfileData(string $username, string $attribute = ''): array|string {
     $this->addCacheTags(['rmd_data:profile:' . $username]);
-    $data = $this->fetchUserData($username);
+    $data = $this->fetchData("users/{$username}/profile", $username);
 
     if (empty($data)) {
       return [];
@@ -72,7 +72,7 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
    */
   public function getProfilePublications(string $username): array {
     $this->addCacheTags(['rmd_data:profile:' . $username]);
-    $data = $this->fetchUserData($username);
+    $data = $this->fetchData("users/{$username}/profile", $username);
 
     $output = [];
 
@@ -98,21 +98,57 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
   }
 
   /**
-   * Fetch user data from the remote metadata database.
+   * {@inheritdoc}
+   */
+  public function getOrgs(bool $flatten = TRUE): array {
+    $this->addCacheTags(['rmd_data:orgs']);
+    $data = $this->fetchData('organizations', 'orgs');
+
+    if (!$flatten) {
+      return $data ?? [];
+    }
+
+    $flat = [];
+    foreach ($data as $org) {
+      $flat[$org['id']] = $org['attributes']['name'];
+    }
+
+    sort($flat);
+    return $flat ?? [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOrgPublications(int $org_id, int $count = 50, int $offset = 0): array {
+    $this->addCacheTags(['rmd_data:org_publications:' . $org_id]);
+    $cache_key = "org:{$org_id}:{$count}:{$offset}";
+    $data = $this->fetchData("organizations/{$org_id}/publications?offset={$offset}&limit={$count}", $cache_key);
+    $formatted_data = [];
+
+    foreach ($data as $item) {
+      $formatted_data[] = $item['attributes'];
+    }
+
+    return $formatted_data ?? [];
+  }
+
+  /**
+   * Fetch data from the remote metadata database.
    *
-   * @param string $username
-   *   Username to fetch data for.
    * @param string $endpoint
-   *   The endpoint to fetch data from.
+   *   API endpoint to fetch data from (e.g. 'users/{user}/profile', 'orgs').
+   * @param string $cache_key
+   *   Unique cache key identifier for this request.
    *
    * @return array|null
-   *   The user data or NULL.
+   *   The fetched data or NULL.
    */
-  protected function fetchUserData(string $username, string $endpoint = 'profile'): array|null {
+  protected function fetchData(string $endpoint, string $cache_key): array|null {
     $data = [];
 
     // Return the cached data if it exists.
-    $cache_id = "psul_rmd_data:{$endpoint}:{$username}";
+    $cache_id = "psul_rmd_data:{$cache_key}";
     if ($cache = $this->cacheData->get($cache_id)) {
       $this->resetCacheTags();
       return $cache->data;
@@ -120,10 +156,12 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
 
     try {
       $url = $this->configs->get('api_url') ?? 'https://metadata.libraries.psu.edu/v1/';
-      $url .= "users/{$username}/{$endpoint}";
+      $url .= $endpoint;
+
       $response = $this->httpClient->request('GET', $url, [
         'headers' => [
           'accept' => 'application/json',
+          'X-API-Key' => $this->configs->get('api_key') ?? '',
         ],
       ]);
 
@@ -133,18 +171,18 @@ class RmdDataFetcher implements RmdDataFetcherInterface {
       $this->cacheData->set(
         $cache_id,
         $data,
-        time() + $this->configs->get('cache_ttl') ?? 86400,
+        time() + ($this->configs->get('cache_ttl') ?? 86400),
         $this->cacheTags,
       );
       $this->resetCacheTags();
     }
     catch (GuzzleException | \Exception $e) {
       $data = [];
-      if ($e->getCode() === 404 && str_contains($e->getMessage(), 'User not found')) {
+      if ($e->getCode() === 404 && (str_contains($e->getMessage(), 'not found') || str_contains($e->getMessage(), 'Not Found'))) {
         $this->cacheData->set(
           $cache_id,
           $data,
-          time() + $this->configs->get('cache_ttl') ?? 86400,
+          time() + ($this->configs->get('cache_ttl') ?? 86400),
           $this->cacheTags,
         );
         $this->resetCacheTags();

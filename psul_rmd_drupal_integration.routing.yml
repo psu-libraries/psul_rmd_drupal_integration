@@ -13,3 +13,12 @@ psul_rmd_drupal_integration.rmd_profile_test:
     _form: 'Drupal\psul_rmd_drupal_integration\Form\RmdProfileTestForm'
   requirements:
     _permission: 'administer site configuration'
+
+psul_rmd_drupal_integration.org_publications_page:
+  path: '/publications/organization/{org_id}'
+  defaults:
+    _title: 'Organization Publications'
+    _controller: 'Drupal\psul_rmd_drupal_integration\Controller\OrgPublicationsController::orgPublicationsPage'
+    _title_callback: 'Drupal\psul_rmd_drupal_integration\Controller\OrgPublicationsController::orgPublicationsPageTitle'
+  requirements:
+    _permission: 'access content'
