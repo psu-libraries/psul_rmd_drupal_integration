@@ -34,7 +34,7 @@ jobs:
             composer create-project drupal/recommended-project:^11 ~/drupal-core --no-interaction
             cd ~/drupal-core
             # Install dev dependencies including phpunit and core-dev tools
-            composer require drupal/core-dev:^11 --dev --no-interaction
+            composer require drupal/core-dev:^11 --dev  --with-all-dependencies --no-interaction
             # Add the PCB module m
             composer require drupal/pcb
 
