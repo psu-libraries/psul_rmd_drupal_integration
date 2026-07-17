@@ -25,7 +25,6 @@ jobs:
           command: |
             sudo apt-get update && sudo apt-get install -y libpng-dev libjpeg-dev libwebp-dev
             sudo docker-php-ext-configure gd --with-jpeg --with-webp
-            sudo docker-php-ext-install -j$(nproc) gd pdo pdo_mysql
 
       # Download and build the Drupal core scaffolding wrapper
       - run:
