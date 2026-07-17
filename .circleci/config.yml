@@ -3,32 +3,86 @@ version: 2.1
 parameters:
   PHP_VERSION:
     type: string
-    default: "8.3"
+    default: "8.4"
+
+executors:
+  php-test-env:
+    docker:
+      - image: cimg/php:<< pipeline.parameters.PHP_VERSION >>
+      - image: cimg/sqlite
+    working_directory: ~/module-repo
 
 jobs:
   test:
-    docker:
-      - image: cimg/php:<< pipeline.parameters.PHP_VERSION >>
+    executor: php-test-env
+    environment:
+      SIMPLETEST_DB: sqlite://localhost//tmp/test.sqlite
+      SIMPLETEST_BASE_URL: http://localhost:8080
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - composer-v1-{{ checksum "composer.json" }}
-            - composer-v1-
+      # Install PHP extensions required by Drupal core
       - run:
-          name: Install Dependencies
-          command: composer install --no-interaction --no-progress --prefer-dist
-      - save_cache:
-          key: composer-v1-{{ checksum "composer.json" }}
-          paths:
-            - ~/.composer/cache
+          name: Install PHP Extensions
+          command: |
+            sudo apt-get update && sudo apt-get install -y libpng-dev libjpeg-dev libwebp-dev
+            sudo docker-php-ext-configure gd --with-jpeg --with-webp
+            sudo docker-php-ext-install -j$(nproc) gd pdo pdo_mysql
+
+      # Download and build the Drupal core scaffolding wrapper
+      - run:
+          name: Setup Drupal Scaffolding Environment
+          command: |
+            # Target a specific core version (e.g., ^10 or ^11)
+            composer create-project drupal/recommended-project:^11 ~/drupal-core --no-interaction
+            cd ~/drupal-core
+            # Install dev dependencies including phpunit and core-dev tools
+            composer require drupal/core-dev:^11 --dev --no-interaction
+            # Add the PCB module m
+            composer require drupal/pcb
+
+      # Symlink your standalone repository into the mock Drupal installation
+      - run:
+          name: Symlink Module into Drupal
+          command: |
+            # Extract the actual module machine name from your info.yml file
+            MODULE_NAME=$(basename $(ls *.info.yml) .info.yml)
+            mkdir -p ~/drupal-core/web/modules/custom
+            ln -s ~/module-repo ~/drupal-core/web/modules/custom/$MODULE_NAME
+
+      # Run PHP Code Sniffer to check for coding standards
+      - run:
+          name: Run PHP Code Sniffer
+          command: |
+            cd ~/drupal-core
+            MODULE_NAME=$(basename $(ls *.info.yml) .info.yml)
+            # Run phpcs on your custom module directory
+            ./vendor/bin/phpcs --standard=Drupal web/modules/custom/$MODULE_NAME --report-junit=~/test-results/phpcs-junit.xml --report-full
+
+      # Configure the phpunit.xml framework
+      - run:
+          name: Configure PHPUnit
+          command: |
+            cd ~/drupal-core/web/core
+            cp phpunit.xml.dist phpunit.xml
+            # Update the configuration with the SQLite database location
+            sed -i 's|name="SIMPLETEST_DB" value=""|name="SIMPLETEST_DB" value="sqlite://localhost//tmp/test.sqlite"|g' phpunit.xml
+            # Update the configuration with a mock base URL
+            sed -i 's|name="SIMPLETEST_BASE_URL" value=""|name="SIMPLETEST_BASE_URL" value="http://localhost:8080"|g' phpunit.xml
+
+      # Run the test suites
       - run:
           name: Run PHPUnit Tests
-          command: vendor/bin/phpunit --log-junit test-results/phpunit/junit.xml
+          command: |
+            cd ~/drupal-core
+            mkdir -p ~/test-results/phpunit
+            # Run only your custom module's Unit and Kernel test classes
+            ./vendor/bin/phpunit -c web/core/phpunit.xml web/modules/custom/ --log-junit ~/test-results/phpunit/junit.xml
+
       - store_test_results:
-          path: test-results
+          path: ~/test-results
 
 workflows:
+  version: 2
   build-and-test:
     jobs:
       - test
