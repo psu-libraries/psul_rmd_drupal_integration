@@ -9,7 +9,6 @@ executors:
   php-test-env:
     docker:
       - image: cimg/php:<< pipeline.parameters.PHP_VERSION >>
-      - image: cimg/sqlite
     working_directory: ~/module-repo
 
 jobs:
