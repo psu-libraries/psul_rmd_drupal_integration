@@ -8,8 +8,6 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * Class RmdDataServiceProvider.
- *
- * @package Drupal\psul_rmd_drupal_integration
  */
 class PsulRmdDrupalIntegrationServiceProvider extends ServiceProviderBase {
 

@@ -8,11 +8,6 @@
 use Drupal\node\NodeInterface;
 
 /**
- * @addtogroup hooks
- * @{
- */
-
-/**
  * Allow prevent RMD data from being added to a node.
  *
  * RMD data is only available for Faculty.  If we already know which nodes are

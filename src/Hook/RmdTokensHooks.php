@@ -22,16 +22,6 @@ class RmdTokensHooks {
    */
   protected $settings;
 
-  /**
-   * Constructs the plugin instance.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
-   *   The config factory.
-   * @param \Drupal\psul_rmd_drupal_integration\RmdDataFetcherInterface $rmdDataFetcher
-   *   The RMD data fetcher service.
-   * @param \Drupal\Core\Utility\Token $token
-   *   The token service.
-   */
   public function __construct(
     private readonly ConfigFactoryInterface $configFactory,
     private readonly RmdDataFetcherInterface $rmdDataFetcher,

@@ -1,3 +1,6 @@
+parameters:
+  psul_rmd_drupal_integration.skip_procedural_hook_scan: true
+
 services:
   cache.rmd_data:
     class: Drupal\Core\Cache\CacheBackendInterface
@@ -11,4 +14,8 @@ services:
   Drupal\psul_rmd_drupal_integration\RmdDataFetcherInterface: '@psul_rmd_drupal_integration.fetcher'
   Drupal\psul_rmd_drupal_integration\Hook\RmdTokensHooks:
     class: \Drupal\psul_rmd_drupal_integration\Hook\RmdTokensHooks
+    autowire: true
+
+  Drupal\psul_rmd_drupal_integration\Hook\PsulRmdDrupalIntegrationHooks:
+    class: Drupal\psul_rmd_drupal_integration\Hook\PsulRmdDrupalIntegrationHooks
     autowire: true
