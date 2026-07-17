@@ -47,13 +47,6 @@ jobs:
             composer config repositories.$CIRCLE_PROJECT_REPONAME path ~/module-repo
             composer require psu-libraries/$CIRCLE_PROJECT_REPONAME --no-interaction
 
-      # Symlink your standalone repository into the mock Drupal installation
-      # - run:
-      #     name: Symlink Module into Drupal
-      #     command: |
-      #       mkdir -p ~/drupal-core/web/modules/custom
-      #       ln -s ~/module-repo ~/drupal-core/web/modules/custom/$CIRCLE_PROJECT_REPONAME
-
       # Run PHP Code Sniffer to check for coding standards
       - run:
           name: Run PHP Code Sniffer
@@ -61,7 +54,7 @@ jobs:
             mkdir -p ~/test-results
             cd ~/drupal-core
             # Run phpcs on your custom module directory
-            ./vendor/bin/phpcs --standard=Drupal web/modules/custom/ --report-junit=~/test-results/phpcs-junit.xml --report-full
+            ./vendor/bin/phpcs --standard=Drupal web/modules/contrib/$CIRCLE_PROJECT_REPONAME --report-junit=~/test-results/phpcs-junit.xml --report-full
 
       # Configure the phpunit.xml framework
       - run:
@@ -81,7 +74,7 @@ jobs:
             cd ~/drupal-core
             mkdir -p ~/test-results/phpunit
             # Run only your custom module's Unit and Kernel test classes
-            ./vendor/bin/phpunit -c web/core/phpunit.xml web/modules/custom/ --log-junit ~/test-results/phpunit/junit.xml
+            ./vendor/bin/phpunit -c web/core/phpunit.xml web/modules/contrib/$CIRCLE_PROJECT_REPONAME --log-junit ~/test-results/phpunit/junit.xml
 
       - store_test_results:
           path: ~/test-results
