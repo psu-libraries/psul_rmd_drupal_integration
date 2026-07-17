@@ -1,0 +1,31 @@
+{
+    "data": {
+        "id": "18033",
+        "type": "user_profile",
+        "attributes": {
+            "name": "Mike S. Henninger",
+            "organization_name": null,
+            "title": null,
+            "office_location": null,
+            "office_phone_number": null,
+            "personal_website": null,
+            "total_scopus_citations": 0,
+            "scopus_h_index": null,
+            "pure_profile_url": null,
+            "orcid_identifier": "https://orcid.org/0009-0003-0256-5507",
+            "bio": null,
+            "teaching_interests": null,
+            "research_interests": null,
+            "publications": [],
+            "other_publications": {},
+            "grants": [],
+            "presentations": [],
+            "performances": [],
+            "master_advising_roles": [],
+            "phd_advising_roles": [],
+            "news_stories": [],
+            "education_history": [],
+            "email": "msh6004@psu.edu"
+        }
+    }
+}
