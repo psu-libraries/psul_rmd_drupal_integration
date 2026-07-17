@@ -35,15 +35,21 @@ jobs:
             cd ~/drupal-core
             # Install dev dependencies including phpunit and core-dev tools
             composer require drupal/core-dev:^11 --dev  --with-all-dependencies --no-interaction
-            # Add the PCB module m
-            composer require drupal/pcb
+
+      # Require dependencies for the custom module.
+      - run:
+          name: Require Dependencies for Custom Module
+          command: |
+            cd ~/drupal-core
+            composer config repositories.$CIRCLE_PROJECT_REPONAME path ~/module-repo
+            composer require psu-libraries/psul-rmd-drupal-integration --no-interaction
 
       # Symlink your standalone repository into the mock Drupal installation
-      - run:
-          name: Symlink Module into Drupal
-          command: |
-            mkdir -p ~/drupal-core/web/modules/custom
-            ln -s ~/module-repo ~/drupal-core/web/modules/custom/$CIRCLE_PROJECT_REPONAME
+      # - run:
+      #     name: Symlink Module into Drupal
+      #     command: |
+      #       mkdir -p ~/drupal-core/web/modules/custom
+      #       ln -s ~/module-repo ~/drupal-core/web/modules/custom/$CIRCLE_PROJECT_REPONAME
 
       # Run PHP Code Sniffer to check for coding standards
       - run:
