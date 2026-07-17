@@ -41,8 +41,11 @@ jobs:
           name: Require Dependencies for Custom Module
           command: |
             cd ~/drupal-core
+            composer config allow-plugins true
+            composer config minimum-stability dev
+            composer config prefer-stable true
             composer config repositories.$CIRCLE_PROJECT_REPONAME path ~/module-repo
-            composer require psu-libraries/psul-rmd-drupal-integration --no-interaction
+            composer require psu-libraries/$CIRCLE_PROJECT_REPONAME --no-interaction
 
       # Symlink your standalone repository into the mock Drupal installation
       # - run:
