@@ -207,8 +207,8 @@ class PsulRmdDrupalIntegrationHooks {
       return NULL;
     }
 
-    // Skip if the current entity is not the correct content type or does not have
-    // the username field.
+    // Skip if the current entity is not the correct content type or does not
+    // have the username field.
     if (!($entity instanceof FieldableEntityInterface) || $entity->bundle() !== $content_type || !$entity->hasField($username_field)) {
       return NULL;
     }
