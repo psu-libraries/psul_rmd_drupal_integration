@@ -43,18 +43,16 @@ jobs:
           name: Symlink Module into Drupal
           command: |
             # Extract the actual module machine name from your info.yml file
-            MODULE_NAME=$(basename $(ls *.info.yml) .info.yml)
             mkdir -p ~/drupal-core/web/modules/custom
-            ln -s ~/module-repo ~/drupal-core/web/modules/custom/$MODULE_NAME
+            ln -s ~/module-repo ~/drupal-core/web/modules/custom/$CIRCLE_PROJECT_REPONAME
 
       # Run PHP Code Sniffer to check for coding standards
       - run:
           name: Run PHP Code Sniffer
           command: |
             cd ~/drupal-core
-            MODULE_NAME=$(basename $(ls *.info.yml) .info.yml)
             # Run phpcs on your custom module directory
-            ./vendor/bin/phpcs --standard=Drupal web/modules/custom/$MODULE_NAME --report-junit=~/test-results/phpcs-junit.xml --report-full
+            ./vendor/bin/phpcs --standard=Drupal web/modules/custom/ --report-junit=~/test-results/phpcs-junit.xml --report-full
 
       # Configure the phpunit.xml framework
       - run:
