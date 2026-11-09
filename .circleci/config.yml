@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   PHP_VERSION:
     type: string
-    default: "8.4"
+    default: "8.5"
 
 executors:
   php-test-env:
